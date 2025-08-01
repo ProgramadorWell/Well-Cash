@@ -1,0 +1,79 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Well Cash</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa;
+      width: 100%;
+      max-width: 350px;
+    }
+    h2 { text-align: center; color: #004080; }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #004080;
+      color: white;
+      border: none;
+    }
+    .links a {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      color: #004080;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login - Well Cash</h2>
+    <form onsubmit="login(event)">
+      <input type="email" id="email" placeholder="E-mail" required />
+      <input type="password" id="senha" placeholder="Senha" required />
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="links">
+      <a href="cadastro.html">Criar Conta</a>
+      <a href="recuperar.html">Esqueci a Senha</a>
+    </div>
+  </div>
+
+  <script>
+    function login(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+
+      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+      const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+
+      if (usuario) {
+        localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+        window.location.href = "index.html";
+      } else {
+        alert("E-mail ou senha incorretos.");
+      }
+    }
+  </script>
+</body>
+</html>

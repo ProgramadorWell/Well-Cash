@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Recuperar Senha - Well Cash</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa;
+      width: 100%;
+      max-width: 350px;
+    }
+    h2 { text-align: center; color: #004080; }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #004080;
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Recuperar Senha</h2>
+    <form onsubmit="recuperarSenha(event)">
+      <input type="email" id="email" placeholder="Seu e-mail cadastrado" required />
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+
+  <script>
+    function recuperarSenha(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+      const usuario = usuarios.find(u => u.email === email);
+
+      if (usuario) {
+        alert(`Senha do usuário ${usuario.nome}: ${usuario.senha}`);
+      } else {
+        alert("E-mail não encontrado.");
+      }
+    }
+  </script>
+</body>
+</html>

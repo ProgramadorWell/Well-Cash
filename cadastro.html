@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Criar Conta - Well Cash</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa;
+      width: 100%;
+      max-width: 350px;
+    }
+    h2 { text-align: center; color: #004080; }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #004080;
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Criar Conta</h2>
+    <form onsubmit="cadastrar(event)">
+      <input type="text" id="nome" placeholder="Nome completo" required />
+      <input type="email" id="email" placeholder="E-mail" required />
+      <input type="password" id="senha" placeholder="Senha" required />
+      <button type="submit">Cadastrar</button>
+    </form>
+  </div>
+
+  <script>
+    function cadastrar(e) {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+
+      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+      if (usuarios.find(u => u.email === email)) {
+        alert("Este e-mail já está cadastrado.");
+        return;
+      }
+
+      usuarios.push({ nome, email, senha });
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+      alert("Conta criada com sucesso!");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

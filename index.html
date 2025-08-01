@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Well Cash: Controle Financeiro</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  if (!usuario) {
+    window.location.href = "login.html";   /*login*/
+  }
+</script>
+
+  
+  <style>
+    body {    /*Estilo COMEÇO*/
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 20px auto;    /*Estilo background(Plano de fundo e geral)*/
+      background: #f0f2f5;
+      color: #333;
+      padding: 10px;
+    }
+    h1 {
+      text-align: center;
+      color: #004080;
+    }
+    form {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    label {
+      display: block;
+      margin: 8px 0 4px;
+      font-weight: bold;
+    }
+    input, select, button {
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 10px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+    button {
+      cursor: pointer;
+      background-color: #004080;
+      color: white;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #003060;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 10px #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #004080;
+      color: white;
+    }
+    td .btn {
+      margin-right: 5px;
+      padding: 4px 8px;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9em;
+      cursor: pointer;
+    }
+    .btn-edit {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-edit:hover {
+      background-color: #0056b3;
+    }
+    .btn-del {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-del:hover {
+      background-color: #a71d2a;
+    }
+    .receita {
+      color: green;
+      font-weight: bold;
+    }
+    .despesa {
+      color: red;
+      font-weight: bold;
+    }
+    #saldo {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-top: 15px;
+      text-align: center;
+    }
+    #filtros {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #filtros select {
+      max-width: 120px;
+      width: 100%;
+    }
+    canvas {
+      display: block;
+      max-width: 400px;
+      margin: 20px auto 0;
+    }
+    /* Modal */
+    #modal-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    #modal {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 350px;
+      width: 90%;
+      box-shadow: 0 0 15px #333;
+    }
+    #modal h2 {
+      margin-top: 0;
+      color: #004080;
+      text-align: center;
+    }
+    #modal button {
+      margin-top: 10px;
+      width: 100%;
+    }    
+/*Estilo*/
+
+/* Modo escuro */
+body.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode button,
+body.dark-mode form,
+body.dark-mode table {
+  background-color: #1e1e1e;
+  color: #fff;
+  border-color: #333;
+}
+
+/*Estilo FIM*/  
+
+</style>
+
+</head>
+<body>
+
+  <h1>🗓️ Well Cash: Controle Financeiro</h1>  <!--HTML PARTE VISUAL COMEÇO-->
+
+<button onclick="logout()">Sair</button>  <!--Botão SAIR-->
+
+
+<script>                    //Botão sair
+  function logout() {
+    localStorage.removeItem("usuarioLogado");
+    window.location.href = "login.html";
+  }   
+</script>
+
+
+  <!-- Data e hora -->
+  <div id="dataHora"></div>
+
+
+
+<script>  //Data e hora
+  setInterval(() => {
+    const agora = new Date();
+    document.getElementById("dataHora").innerText =
+      agora.toLocaleString('pt-BR');
+  }, 1000);
+</script>
+
+  
+  
+  <!--Descrição, valor,data e tipo-->
+  <form id="form-transacao">
+    <label for="descricao">Descrição:</label>
+    <input type="text" id="descricao" required placeholder="Ex: Salário, Mercado..." />
+
+    <label for="valor">Valor (R$):</label>
+    <input type="number" id="valor" step="0.01" required placeholder="Ex: 1500.00" />
+
+<!-- NOVO: Campo de Data -->
+<label for="data">Data:</label>
+<input type="date" id="data" value="">
+
+<script>
+  // Define a data atual como valor padrão
+  document.addEventListener("DOMContentLoaded", () => {
+    const hoje = new Date().toISOString().split('T')[0];
+    document.getElementById("data").value = hoje;
+  });
+</script>
+
+    <!-- Opçções de escolhas -->
+    <label for="tipo">Tipo:</label>
+    <select id="tipo" required>
+      <option value="Receita">Receita</option>
+      <option value="Despesa">Despesa</option>
+    </select>
+
+    <button type="submit">Adicionar Transação</button>
+  </form>
+
+  <div id="filtros">
+    <select id="filtro-mes" title="Filtrar por mês"></select>
+    <select id="filtro-ano" title="Filtrar por ano"></select>
+    <button onclick="limparFiltro()" title="Remover filtro">Limpar Filtros</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Descrição</th>
+        <th>Valor (R$)</th>
+        <th>Tipo</th>
+        <th>Data</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-transacoes"></tbody>
+  </table>
+
+  <div id="saldo">Saldo Atual: R$ 0.00</div>
+
+  <canvas id="grafico"></canvas>
+
+  <!-- Modal de edição -->
+  <div id="modal-bg">
+    <div id="modal">
+      <h2>Editar Transação</h2>
+      <form id="form-editar">
+        <label for="edit-descricao">Descrição:</label>
+        <input type="text" id="edit-descricao" required />
+
+        <label for="edit-valor">Valor (R$):</label>
+        <input type="number" id="edit-valor" step="0.01" required />
+
+        <label for="edit-data">Data:</label>
+        <input type="date" id="edit-data" required />
+
+
+        <label for="edit-tipo">Tipo:</label>
+        <select id="edit-tipo" required>
+          <option value="Receita">Receita</option>
+          <option value="Despesa">Despesa</option>
+        </select>
+
+        <button type="submit">Salvar Alterações</button>
+        <button type="button" onclick="fecharModal()" style="background:#dc3545; margin-top:5px;">Cancelar</button>
+      </form>
+    </div>
+  </div>
+  
+
+
+<script>   //modo escuro
+function alternarModo() {
+  document.body.classList.toggle("dark-mode");
+  localStorage.setItem("modoEscuro", document.body.classList.contains("dark-mode"));
+}
+
+window.onload = () => {
+  if (localStorage.getItem("modoEscuro") === "true") {
+    document.body.classList.add("dark-mode");
+  }
+};
+</script>
+
+
+
+
+<script>
+   
+   
+  let transacoes = JSON.parse(localStorage.getItem("transacoes")) || [];
+  let filtroMes = "";
+  let filtroAno = "";
+  let grafico;
+  let indexEdit = null;
+
+  // Inicializar filtros de mês e ano
+  function initFiltros() {
+    const filtroMesEl = document.getElementById("filtro-mes");
+    const filtroAnoEl = document.getElementById("filtro-ano");
+
+    // Meses
+    const meses = [
+      { valor: "", nome: "Todos os meses" },
+      { valor: "01", nome: "Janeiro" },
+      { valor: "02", nome: "Fevereiro" },
+      { valor: "03", nome: "Março" },
+      { valor: "04", nome: "Abril" },
+      { valor: "05", nome: "Maio" },
+      { valor: "06", nome: "Junho" },
+      { valor: "07", nome: "Julho" },
+      { valor: "08", nome: "Agosto" },
+      { valor: "09", nome: "Setembro" },
+      { valor: "10", nome: "Outubro" },
+      { valor: "11", nome: "Novembro" },
+      { valor: "12", nome: "Dezembro" }
+    ];
+    meses.forEach(m => {
+      const option = document.createElement("option");
+      option.value = m.valor;
+      option.textContent = m.nome;
+      filtroMesEl.appendChild(option);
+    });
+
+    // Anos - pega os anos das transações + ano atual
+    const anosSet = new Set(transacoes.map(t => t.data.split("/")[2]));
+    anosSet.add(new Date().getFullYear().toString());
+    const anos = Array.from(anosSet).sort();
+
+    // Adiciona opção "Todos os anos"
+    const optTodos = document.createElement("option");
+    optTodos.value = "";
+    optTodos.textContent = "Todos os anos";
+    filtroAnoEl.appendChild(optTodos);
+
+    anos.forEach(ano => {
+      const option = document.createElement("option");
+      option.value = ano;
+      option.textContent = ano;
+      filtroAnoEl.appendChild(option);
+    });
+
+    filtroMesEl.addEventListener("change", e => {
+      filtroMes = e.target.value;
+      atualizarTudo();
+    });
+
+    filtroAnoEl.addEventListener("change", e => {
+      filtroAno = e.target.value;
+      atualizarTudo();
+    });
+  }
+
+  // Função para adicionar transação
+  document.getElementById("form-transacao").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const descricao = document.getElementById("descricao").value.trim();
+    const valor = parseFloat(document.getElementById("valor").value);
+    const tipo = document.getElementById("tipo").value;
+
+    if (!descricao || isNaN(valor) || valor <= 0) {
+      alert("Preencha os campos corretamente!");
+      return;
+    }
+
+    const dataInput = document.getElementById("data").value;
+    const [ano, mes, dia] = dataInput.split("-");
+    const dataFormatada = `${dia}/${mes}/${ano}`;
+
+
+    transacoes.push({
+      descricao,
+      valor,
+      tipo,
+      data: dataFormatada
+    });
+
+    salvarLocal();
+    atualizarTudo();
+
+    e.target.reset();
+  });
+
+  // Salvar no localStorage
+  function salvarLocal() {
+    localStorage.setItem("transacoes", JSON.stringify(transacoes));
+  }
+
+  // Atualizar tudo: tabela, saldo e gráfico
+  function atualizarTudo() {
+    atualizarTabela();
+    atualizarSaldo();
+    atualizarGrafico();
+  }
+
+  // Filtrar transações por mês e ano
+  function getTransacoesFiltradas() {
+    return transacoes.filter(t => {
+      const [dia, mes, ano] = t.data.split("/");
+      const okMes = filtroMes ? (mes === filtroMes) : true;
+      const okAno = filtroAno ? (ano === filtroAno) : true;
+      return okMes && okAno;
+    });
+  }
+
+  // Atualizar tabela
+  function atualizarTabela() {
+    const tbody = document.getElementById("tbody-transacoes");
+    tbody.innerHTML = "";
+
+    const listaFiltrada = getTransacoesFiltradas();
+
+    listaFiltrada.forEach((t, i) => {
+    const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${t.descricao}</td>
+        <td class="${t.tipo === 'Receita' ? 'receita' : 'despesa'}">R$ ${t.valor.toFixed(2)}</td>
+        <td>${t.tipo}</td>
+        <td>${t.data}</td>
+        <td>
+          <button class="btn btn-edit" onclick="editarTransacao(${i})">Editar</button>
+          <button class="btn btn-del" onclick="excluirTransacao(${i})">Excluir</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Atualizar saldo considerando filtro
+  function atualizarSaldo() {
+    const listaFiltrada = getTransacoesFiltradas();
+
+    let saldo = 0;
+    listaFiltrada.forEach(t => {
+      saldo += t.tipo === "Receita" ? t.valor : -t.valor;
+    });
+
+    document.getElementById("saldo").textContent = `Saldo Atual: R$ ${saldo.toFixed(2)}`;
+  }
+
+  // Exportar CSV das transações filtradas
+function exportarCSV() {
+  const listaFiltrada = getTransacoesFiltradas();
+
+  if (listaFiltrada.length === 0) {
+    alert("Nenhuma transação para exportar.");
+    return;
+  }
+
+  let csv = "Descrição,Valor,Tipo,Data\n";
+  listaFiltrada.forEach(t => {
+    csv += `"${t.descricao}",${t.valor},${t.tipo},${t.data}\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "wellcash_transacoes.csv";
+  link.click();
+}
+
+
+  // Atualizar gráfico
+  function atualizarGrafico() {
+    const listaFiltrada = getTransacoesFiltradas();
+
+    const receitas = listaFiltrada
+      .filter(t => t.tipo === "Receita")
+      .reduce((acc, t) => acc + t.valor, 0);
+
+    const despesas = listaFiltrada
+      .filter(t => t.tipo === "Despesa")
+      .reduce((acc, t) => acc + t.valor, 0);
+
+    const ctx = document.getElementById("grafico").getContext("2d");
+
+    if (grafico) grafico.destroy();
+
+    grafico = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: ["Receitas", "Despesas"],
+        datasets: [{
+          data: [receitas, despesas],
+          backgroundColor: ["green", "red"]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: "bottom" },
+          title: { display: true, text: "Distribuição Financeira" }
+        }
+      }
+    });
+  }
+
+  // Limpar filtros
+  function limparFiltro() {
+    filtroMes = "";
+    filtroAno = "";
+    document.getElementById("filtro-mes").value = "";
+    document.getElementById("filtro-ano").value = "";
+    atualizarTudo();
+  }
+
+  // Editar transação - abre modal com dados
+ function editarTransacao(i) {
+  indexEdit = i;
+  const t = transacoes[i];
+  document.getElementById("edit-descricao").value = t.descricao;
+  document.getElementById("edit-valor").value = t.valor;
+  document.getElementById("edit-tipo").value = t.tipo;
+  document.getElementById("edit-data").value = formatarDataParaInput(t.data); // ← aqui
+
+  abrirModal();
+}
+
+
+function formatarDataParaInput(data) {
+  const [dia, mes, ano] = data.split("/");
+  return `${ano}-${mes}-${dia}`;
+}
+
+
+
+
+
+  // Excluir transação
+  function excluirTransacao(i) {
+    if (confirm("Deseja mesmo excluir esta transação?")) {
+      transacoes.splice(i, 1);
+      salvarLocal();
+      atualizarTudo();
+    }
+  }
+
+  // Modal open/close
+  function abrirModal() {
+    document.getElementById("modal-bg").style.display = "flex";
+  }
+  function fecharModal() {
+    document.getElementById("modal-bg").style.display = "none";
+    indexEdit = null;
+  }
+
+  // Salvar edição
+  document.getElementById("form-editar").addEventListener("submit", e => {
+  e.preventDefault();
+
+  if (indexEdit === null) return;
+
+  const descricao = document.getElementById("edit-descricao").value.trim();
+  const valor = parseFloat(document.getElementById("edit-valor").value);
+  const tipo = document.getElementById("edit-tipo").value;
+  const dataInput = document.getElementById("edit-data").value;
+
+  if (!descricao || isNaN(valor) || valor <= 0 || !dataInput) {
+    alert("Preencha os campos corretamente!");
+    return;
+  }
+
+  // Convertendo a data de volta para "dd/mm/aaaa"
+  const [ano, mes, dia] = dataInput.split("-");
+  const dataFormatada = `${dia}/${mes}/${ano}`;
+
+  transacoes[indexEdit] = {
+    ...transacoes[indexEdit],
+    descricao,
+    valor,
+    tipo,
+    data: dataFormatada
+  };
+
+  salvarLocal();
+  atualizarTudo();
+  fecharModal();
+});
+
+
+  // Inicialização
+  window.onload = () => {
+    initFiltros();
+    atualizarTudo();
+  };
+
+  // Expor função exportarCSV globalmente para botão
+  window.exportarCSV = exportarCSV;
+  window.limparFiltro = limparFiltro;
+  window.editarTransacao = editarTransacao;
+  window.excluirTransacao = excluirTransacao;
+
+</script>
+
+
+<script>
+function adicionarTransacao() {
+  const descricao = document.getElementById("descricao").value;
+  const valor = parseFloat(document.getElementById("valor").value);
+  const data = document.getElementById("data").value;
+  const tipo = document.getElementById("tipo").value;
+
+  // Validação
+  if (!descricao || isNaN(valor) || !data) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  // Criar e salvar a transação (exemplo genérico)
+  const transacao = { descricao, valor, data, tipo };
+  console.log("Transação salva:", transacao);
+
+  // Aqui você pode adicionar a lógica para salvar no localStorage ou atualizar a tabela
+}
+const novaLinha = `
+  <tr>
+    <td>${descricao}</td>
+    <td>${formatarValor(valor)}</td>
+    <td>${tipo}</td>
+    <td>${dataInput}</td>
+    <td>
+      <button onclick="editarTransacao(${index})">Editar</button>
+      <button onclick="excluirTransacao(${index})">Excluir</button>
+    </td>
+  </tr>
+`;
+</script>
+
+
+
+<script>
+const dataInput = document.getElementById("edit-data").value;
+const [ano, mes, dia] = dataInput.split("-");
+const dataFormatada = `${dia}/${mes}/${ano}`;
+
+transacoes[indexEdit] = {
+  ...transacoes[indexEdit],
+  descricao,
+  valor,
+  tipo,
+  data: dataFormatada
+};
+</script>
+
+
+
+<div style="text-align: center; margin-top: 20px;">
+  <button onclick="exportarCSV()">📄 Exportar Excel (CSV)</button>
+  <button onclick="exportarPDF()">📑 Exportar PDF</button>
+</div>
+
+
+
+<script>
+//Código JavaScript para exportar como PDF
+async function exportarPDF() {
+  const listaFiltrada = getTransacoesFiltradas();
+
+  if (listaFiltrada.length === 0) {
+    alert("Nenhuma transação para exportar.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("Relatório de Transações - Well Cash", 14, 20);
+
+  doc.setFontSize(12);
+  let y = 30;
+  doc.text("Descrição | Valor | Tipo | Data", 14, y);
+  y += 10;
+
+  listaFiltrada.forEach(t => {
+    const linha = `${t.descricao} | R$ ${t.valor.toFixed(2)} | ${t.tipo} | ${t.data}`;
+    doc.text(linha, 14, y);
+    y += 10;
+  });
+
+  doc.save("wellcash_transacoes.pdf");
+}
+</script>
+
+
+
+<button onclick="alternarModo()">🌙 Modo Escuro</button>  <!--Modo escuro HTML-->
+
+</body>
+</html>
+
