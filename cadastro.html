@@ -1,70 +1,248 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Criar Conta - Well Cash</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #aaa;
-      width: 100%;
-      max-width: 350px;
-    }
-    h2 { text-align: center; color: #004080; }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background-color: #004080;
-      color: white;
-      border: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cadastro - Well Cash</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(135deg,#004080,#0066cc);
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    background:white;
+    width:100%;
+    max-width:420px;
+    padding:35px;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.logo h1{
+    color:#004080;
+}
+
+.logo p{
+    color:#666;
+    margin-top:5px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:15px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#004080;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#003366;
+}
+
+.links{
+    margin-top:20px;
+    text-align:center;
+}
+
+.links a{
+    color:#004080;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.links a:hover{
+    text-decoration:underline;
+}
+
+.sucesso{
+    display:none;
+    text-align:center;
+    color:green;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+.erro{
+    display:none;
+    text-align:center;
+    color:red;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+</style>
+
 </head>
 <body>
-  <div class="container">
-    <h2>Criar Conta</h2>
-    <form onsubmit="cadastrar(event)">
-      <input type="text" id="nome" placeholder="Nome completo" required />
-      <input type="email" id="email" placeholder="E-mail" required />
-      <input type="password" id="senha" placeholder="Senha" required />
-      <button type="submit">Cadastrar</button>
+
+<div class="container">
+
+    <div class="logo">
+        <h1>💰 Well Cash</h1>
+        <p>Criar nova conta</p>
+    </div>
+
+    <div id="sucesso" class="sucesso">
+        Conta criada com sucesso!
+    </div>
+
+    <div id="erro" class="erro">
+        Este e-mail já está cadastrado.
+    </div>
+
+    <form id="form-cadastro">
+
+        <input
+        type="text"
+        id="nome"
+        placeholder="Nome completo"
+        required>
+
+        <input
+        type="email"
+        id="email"
+        placeholder="E-mail"
+        required>
+
+        <input
+        type="password"
+        id="senha"
+        placeholder="Senha"
+        minlength="4"
+        required>
+
+        <input
+        type="password"
+        id="confirmarSenha"
+        placeholder="Confirmar senha"
+        minlength="4"
+        required>
+
+        <button type="submit">
+            Criar Conta
+        </button>
+
     </form>
-  </div>
 
-  <script>
-    function cadastrar(e) {
-      e.preventDefault();
-      const nome = document.getElementById("nome").value;
-      const email = document.getElementById("email").value;
-      const senha = document.getElementById("senha").value;
+    <div class="links">
+        <a href="login.html">
+            Já tenho uma conta
+        </a>
+    </div>
 
-      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+</div>
 
-      if (usuarios.find(u => u.email === email)) {
-        alert("Este e-mail já está cadastrado.");
+<script>
+
+document
+.getElementById("form-cadastro")
+.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    const nome =
+        document.getElementById("nome").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const senha =
+        document.getElementById("senha").value;
+
+    const confirmarSenha =
+        document.getElementById("confirmarSenha").value;
+
+    document.getElementById("erro").style.display = "none";
+    document.getElementById("sucesso").style.display = "none";
+
+    if(senha !== confirmarSenha){
+
+        document.getElementById("erro").innerHTML =
+        "As senhas não coincidem.";
+
+        document.getElementById("erro").style.display =
+        "block";
+
         return;
-      }
-
-      usuarios.push({ nome, email, senha });
-      localStorage.setItem("usuarios", JSON.stringify(usuarios));
-      alert("Conta criada com sucesso!");
-      window.location.href = "login.html";
     }
-  </script>
+
+    let usuarios =
+        JSON.parse(
+            localStorage.getItem("usuarios")
+        ) || [];
+
+    const usuarioExiste =
+        usuarios.find(u => u.email === email);
+
+    if(usuarioExiste){
+
+        document.getElementById("erro").innerHTML =
+        "Este e-mail já está cadastrado.";
+
+        document.getElementById("erro").style.display =
+        "block";
+
+        return;
+    }
+
+    usuarios.push({
+        nome,
+        email,
+        senha
+    });
+
+    localStorage.setItem(
+        "usuarios",
+        JSON.stringify(usuarios)
+    );
+
+    document.getElementById("sucesso").style.display =
+    "block";
+
+    document.getElementById("form-cadastro").reset();
+
+    setTimeout(() => {
+
+        window.location.href =
+        "login.html";
+
+    }, 2000);
+
+});
+
+</script>
+
 </body>
 </html>
