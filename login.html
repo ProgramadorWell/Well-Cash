@@ -1,79 +1,196 @@
-<!-- login.html -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login - Well Cash</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #aaa;
-      width: 100%;
-      max-width: 350px;
-    }
-    h2 { text-align: center; color: #004080; }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background-color: #004080;
-      color: white;
-      border: none;
-    }
-    .links a {
-      display: block;
-      text-align: center;
-      margin-top: 10px;
-      color: #004080;
-      text-decoration: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login - Well Cash</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(135deg,#004080,#0066cc);
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    background:white;
+    width:100%;
+    max-width:400px;
+    padding:35px;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.logo h1{
+    color:#004080;
+    margin-bottom:5px;
+}
+
+.logo p{
+    color:#666;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:15px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#004080;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#003366;
+}
+
+.links{
+    margin-top:20px;
+    text-align:center;
+}
+
+.links a{
+    display:block;
+    margin-top:10px;
+    color:#004080;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.links a:hover{
+    text-decoration:underline;
+}
+
+.erro{
+    color:red;
+    text-align:center;
+    margin-bottom:10px;
+    display:none;
+}
+
+</style>
+
 </head>
 <body>
-  <div class="container">
-    <h2>Login - Well Cash</h2>
-    <form onsubmit="login(event)">
-      <input type="email" id="email" placeholder="E-mail" required />
-      <input type="password" id="senha" placeholder="Senha" required />
-      <button type="submit">Entrar</button>
-    </form>
-    <div class="links">
-      <a href="cadastro.html">Criar Conta</a>
-      <a href="recuperar.html">Esqueci a Senha</a>
+
+<div class="container">
+
+    <div class="logo">
+        <h1>💰 Well Cash</h1>
+        <p>Controle Financeiro Pessoal</p>
     </div>
-  </div>
 
-  <script>
-    function login(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const senha = document.getElementById('senha').value;
+    <div id="erro" class="erro">
+        E-mail ou senha inválidos.
+    </div>
 
-      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-      const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+    <form id="form-login">
 
-      if (usuario) {
-        localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
-        window.location.href = "index.html";
-      } else {
-        alert("E-mail ou senha incorretos.");
-      }
+        <input
+        type="email"
+        id="email"
+        placeholder="Digite seu e-mail"
+        required>
+
+        <input
+        type="password"
+        id="senha"
+        placeholder="Digite sua senha"
+        required>
+
+        <button type="submit">
+            Entrar
+        </button>
+
+    </form>
+
+    <div class="links">
+
+        <a href="cadastro.html">
+            Criar Conta
+        </a>
+
+        <a href="recuperar.html">
+            Esqueci minha Senha
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+
+document
+.getElementById("form-login")
+.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    const email =
+        document.getElementById("email").value;
+
+    const senha =
+        document.getElementById("senha").value;
+
+    const usuarios =
+        JSON.parse(
+            localStorage.getItem("usuarios")
+        ) || [];
+
+    const usuario =
+        usuarios.find(u =>
+            u.email === email &&
+            u.senha === senha
+        );
+
+    if(usuario){
+
+        localStorage.setItem(
+            "usuarioLogado",
+            JSON.stringify(usuario)
+        );
+
+        window.location.href =
+            "index.html";
+
+    }else{
+
+        document
+        .getElementById("erro")
+        .style.display = "block";
+
     }
-  </script>
+
+});
+
+</script>
+
 </body>
 </html>
